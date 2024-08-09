@@ -29,15 +29,11 @@
       margin: auto;
     }
 
-    .header {
-      padding: 3em 0;
 
-
-    }
 
     .header {
         text-align: center;
-        padding: 3em 0;
+        padding: 1em 0;
         height: 50vh;
         display: flex;
         flex-direction: column;
@@ -196,6 +192,10 @@
         position: relative;
         padding: 1rem;
       }
+      #scrolly2 {
+        position: relative;
+        padding: 1rem;
+      }
 
       .scrolly-overlay {
         position: relative;
@@ -274,13 +274,21 @@
 	
   </head>
 
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+
+
   <body>
     <div class="content">
       <div class="header">
         <h1>Why is my Big Mac so expensive?</h1>
         <p class="subhead">How a budget meal became not-so-budget-friendly</p>
       </div>
-
+      <div>
+        <figure>
+          <img src="bigmac_story_illo.png" alt="Big Mac Meal Illustration">
+        </figure>
+      </div>
       <div class="byline">
         <p>By <a href="https://carlyschulman.com">Carly Schulman</a></p>
       </div>
@@ -296,8 +304,8 @@
       <p>There are a lot of factors that go into the pricing of items at each restuarant, which leads to massive variation across
         individual franchises and geographical location. I'm gonna use this burger to explain some of the factors that go into the price.
       </p>
-      <p>Remove <code>debug: true</code> from the code near the bottom of the page to make the black lines go away, and
-        <strong>make sure you change the background color of the overlays</strong>. Otherwise I will go crazy.
+      <p>
+         
       </p>
       <h2>Let's build a Big Mac</h2>
 
@@ -815,25 +823,180 @@
       <p>Super weird that there are just some super expensive locations in Queens when it doesn't tend to be an expensive area.
         When I first saw that the most expensive Big Macs were in Queens, I assumed they would be inside JFK or LaGuardia. But they're not!
       </p>
+      <p>
+        The cheap Big Macs are spread out across four whole boroughs! We love the diversity. The only borough not represented in
+        the top five is Staten Island which is fine because no one needs to go there anyway. Of course, Queens is in their twice
+        because it is clearly the most dysfunctional borough in terms of Big Mac pricing.
+      </p>
         
-        
-        
+      <p>
+        However, with the cheapest price still being a whopping $5.39, clearly we are living in bleak times. I don't really know how
+        to transition here. 
+      </p>
       
-      <div class="content">
-        <p></p>
-    
-       
-    
-        <p></p>
-          
-    
+      <h3>Big Mac prices over time</h3>
+
+      <p>
+        There isn't a lot of great historical data tracking McDonald's menu prices over time, but I found a few benchmarks.
+      </p>
+      <p>
+        When the Big Mac was first released in 1968, it cost 45 cents. Now that's what I call a deal. 
+      </p>
+      <p>
+        For the current median price of a Big Mac in New York City ($5.99), you could buy 13 Big Macs in 1968.
+      </p>
+
+      <p>
+        For that price, you could not buy a single item on a McDonald's today. The cheapest item at the McDonald's
+        closest to Columbia is 2 cookies for one dollar. You would think that means the cheapest item would actually be one cookie,
+        but you would be very wrong.
+      </p>
+      <div>
+        <figure>
+          <img src="cookie_ss.jpg" alt="McDonald's cookie menu">
+        </figure>
       </div>
+      <img> 
+      
+      <p>
+        Let's take a look at what kind of value you could get at McDonald's today based on historical Big Mac prices across history.
+      </p>
+
+      <div>
+        <figure>
+          <img src="food_chart.png" alt="McDonald's cookie menu">
+        </figure>
+      </div>
+
+      <p>
+        Sad.
+      </p>
+      <p>
+        But what about the reverse? How much bang for our buck could we get for the price of a Big Mac today
+        back when McDonald's first opened?
+      </p>
+      <p>
+        This is the first ever McDonald's menu from 1940.
+      </p>
+
+      <div>
+        <figure>
+          <img src="first-ever-mcdonalds-menu.jpg" alt="First McDonald's menu">
+        </figure>
+      </div>
+
+      <p>
+        Here's what we could get for $5.99 (ish) in 1940:
+      </p>
+
+      <div id="chart-container">
+
+
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+      
       <div class="footer">
         <div class="content">
           <p>Carly Schulman 2024</p>
         </div>
       </div>
+    <script>
 
+const data = [
+  { name: "Pure Beef Hamburger", quantity: 40 },
+  { name: "Tempting Cheeseburger", quantity: 31 },
+  { name: "Triple-Thick Milkshake", quantity: 29 },
+  { name: "Golden French Fries", quantity: 60 },
+  { name: "Thirst-Quenching Coke", quantity: 60 },
+  { name: "Delightful Root Beer", quantity: 60 },
+  { name: "Steaming Hot Coffee", quantity: 60 },
+  { name: "Full-Flavor Orange Drink", quantity: 60 },
+  { name: "Refreshing Cold Milk", quantity: 50 }
+];
+
+// Set up the chart dimensions
+const width = 600;
+const height = 400;
+const margin = { top: 20, right: 20, bottom: 50, left: 40 };
+
+// Create the SVG container
+const svg = d3.select("#chart-container")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+// Create a group for the chart elements
+const chartGroup = svg.append("g")
+  .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+// Create the dropdown menu
+const dropdown = d3.select("#chart-container")
+  .insert("select", "svg")
+  .attr("id", "item-select")
+  .on("change", updateChart);
+
+dropdown.selectAll("option")
+  .data(data)
+  .enter()
+  .append("option")
+  .text(d => d.name)
+  .attr("value", d => d.name);
+
+// Set up the force simulation
+const simulation = d3.forceSimulation()
+  .force("y", d3.forceY(height - margin.top - margin.bottom - 5).strength(0.1))  // Subtract 5 (or the radius of your circles) from the target y-position
+  .force("x", d3.forceX((width - margin.left - margin.right) / 2).strength(0.1))
+  .force("collide", d3.forceCollide(5));
+
+function updateChart() {
+  const selectedItem = dropdown.property("value");
+  const selectedData = data.find(d => d.name === selectedItem);
+
+  // Create node objects for the force simulation
+  const nodes = d3.range(selectedData.quantity).map(() => ({
+    x: Math.random() * (width - margin.left - margin.right),
+    y: 0  // Change this from -10 to 0
+  }));
+
+  // Remove existing circles
+  chartGroup.selectAll("circle").remove();
+
+  // Create new circles based on the selected quantity
+  const circles = chartGroup.selectAll("circle")
+    .data(nodes)
+    .enter()
+    .append("circle")
+    .attr("r", 5)
+    .attr("fill", "steelblue");
+
+  // Update the force simulation
+  simulation.nodes(nodes)
+    .on("tick", () => {
+      circles
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    });
+
+  // Restart the simulation
+  simulation.alpha(1).restart();
+}
+
+// Initialize the chart with the first item
+updateChart();
+
+    </script>
     <script>
       
       /* Scrollytelling code goes under here */
@@ -951,6 +1114,22 @@
  
       })
 
+      d3.select("#step-thirteen").on('stepin', function(e) {
+        console.log("Got to step thirteen")
+
+ 
+      })
+      d3.select("#step-fourteen").on('stepin', function(e) {
+        console.log("Got to step fourteen")
+
+ 
+      })
+
+      d3.select("#step-fifteen").on('stepin', function(e) {
+        console.log("Got to step fifteen")
+
+ 
+      })
      
 
     </script>
@@ -961,7 +1140,7 @@
 	scroller
 		.setup({
 			step: "#scrolly .scrolly-overlay .step",
-			offset: 0.75,
+			offset: 0.5,
 			debug: false
 		})
 		.onStepEnter(function({ element, index, direction}) {
